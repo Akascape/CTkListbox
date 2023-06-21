@@ -1,6 +1,8 @@
 # CTkListbox
 This is a listbox widget for customtkinter, works just like the tkinter listbox.
 
+![Screenshot](https://github.com/Akascape/CTkListbox/assets/89206401/256c135f-3d6c-4daa-87a5-b4572a2c905f)
+
 ## Installation
 ### [<img alt="GitHub repo size" src="https://img.shields.io/github/repo-size/Akascape/CTkListbox?&color=white&label=Download%20Source%20Code&logo=Python&logoColor=yellow&style=for-the-badge"  width="400">](https://github.com/Akascape/CTkListbox/archive/refs/heads/main.zip)
 
