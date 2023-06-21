@@ -48,7 +48,7 @@ root.mainloop()
 | *other_parameters | _all other parameters of ctk_scrollable frame can be passed_ |
 
 ## Methods
-- **.insert(index, option)
+- **.insert(index, option)**
    add a option to the listbox
 - **.get()**
    get the selected/index option
