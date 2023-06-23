@@ -19,6 +19,8 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
                  hover_color: str = "default",
                  border_width: int = 3,
                  font: tuple = "default",
+                 multiple_selection: bool = False,
+                 hover: bool = True,
                  command = None,
                  **kwargs):
         
@@ -35,17 +37,41 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         self.font = (customtkinter.ThemeManager.theme["CTkFont"]["family"],13) if font=="default" else font
         self.buttons = {}
         self.command = command
+        self.multiple = multiple_selection
         self.selected = None
+        self.hover = hover
+        self.selections = []
     
     def select(self, index):
         """ select the option """
         for options in self.buttons.values():
             options.configure(fg_color="transparent")
-        self.buttons[index].configure(fg_color=self.select_color)
-        self.selected = self.buttons[index]
+        
+        if self.multiple:
+            if self.buttons[index] in self.selections:
+                self.selections.remove(self.buttons[index])
+                self.buttons[index].configure(fg_color="transparent", hover=False)
+                self.after(100, lambda: self.buttons[index].configure(hover=self.hover))
+            else:
+                self.selections.append(self.buttons[index])
+            for i in self.selections:
+                i.configure(fg_color=self.select_color)
+        else:
+            self.selected = self.buttons[index]
+            self.buttons[index].configure(fg_color=self.select_color)
+            
         if self.command:
             self.command(self.get())
-        
+            
+    def deselect(self, index):
+        if not self.multiple:
+            self.selected.configure(fg_color="transparent")
+            self.selected = None
+            return
+        if self.buttons[index] in self.selections:
+            self.selections.remove(self.buttons[index])
+            self.buttons[index].configure(fg_color="transparent")
+       
     def insert(self, index, option, justify="left", **args):
         """ select new value in the listbox """
         if justify=="left":
@@ -82,7 +108,10 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             else:
                 return list(item.cget("text") for item in self.buttons.values())
         else:
-            return self.selected.cget("text") if self.selected is not None else None
+            if self.multiple:
+                return [x.cget("text") for x in self.selections] if len(self.selections)>0 else None
+            else:
+                return self.selected.cget("text") if self.selected is not None else None
         
     def configure(self, **kwargs):
         """ configurable options of the listbox """
@@ -94,6 +123,9 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         if "highlight_color" in kwargs:
             self.select_color = kwargs.pop("highlight_color")
             if self.selected: self.selected.configure(fg_color=self.select_color)
+            if len(self.selections)>0:
+                for i in self.selections:
+                    i.configure(fg_color=self.select_color)
         if "text_color" in kwargs:
             self.text_color = kwargs.pop("text_color")
             for i in self.buttons.values():
