@@ -47,6 +47,7 @@ root.mainloop()
 | highlight_color | set the selected color of the option |
 | font | set font of the option text |
 | command | calls a command when a option is selected |
+| multiple_selection | select multiple options in the listbox, `default=False`|
 | *other_parameters | _all other parameters of ctk_scrollable frame can be passed_ |
 
 ## Methods
