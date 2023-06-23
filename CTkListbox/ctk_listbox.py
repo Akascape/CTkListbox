@@ -55,10 +55,12 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             else:
                 self.selections.append(self.buttons[index])
             for i in self.selections:
-                i.configure(fg_color=self.select_color)
+                i.configure(fg_color=self.select_color, hover=False)
+                self.after(100, lambda button=i: button.configure(hover=self.hover))
         else:
             self.selected = self.buttons[index]
-            self.buttons[index].configure(fg_color=self.select_color)
+            self.buttons[index].configure(fg_color=self.select_color, hover=False)
+            self.after(100, lambda: self.buttons[index].configure(hover=self.hover))
             
         if self.command:
             self.command(self.get())
