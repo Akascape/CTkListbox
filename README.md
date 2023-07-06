@@ -1,5 +1,5 @@
 # CTkListbox
-This is a listbox widget for customtkinter, works just like the tkinter listbox.
+This is a **listbox widget** for customtkinter, works just like the tkinter listbox.
 
 ![Screenshot](https://github.com/Akascape/CTkListbox/assets/89206401/256c135f-3d6c-4daa-87a5-b4572a2c905f)
 
