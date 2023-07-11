@@ -112,6 +112,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             return
         self.buttons[index].destroy()
         del self.buttons[index]
+        self.selections.clear()
         
     def size(self):
         """ return total number of items in the listbox """
