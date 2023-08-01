@@ -55,11 +55,17 @@ root.mainloop()
 - **.insert(index, option)**
    add a option to the listbox
 - **.get()**
-   get the selected/index option
+   get the selected options
 - **.delete(index)**
    delete a option from the listbox
 - **.size()**
    get the size of the listbox
+- **.activate(index)**
+  activate an option
+- **.deactivae(index)**
+  deactivate any option
+- **.curselection()**
+  returns indexes of selected options
 - **.configure()**
    change some parameters for the listbox
   
