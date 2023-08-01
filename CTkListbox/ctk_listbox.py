@@ -49,7 +49,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         self.hover = hover
         self.end_num = 0 
         self.selections = []
-    
+        
     def select(self, index):
         """ select the option """
         for options in self.buttons.values():
@@ -69,10 +69,36 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.selected = self.buttons[index]
             self.buttons[index].configure(fg_color=self.select_color, hover=False)
             self.after(100, lambda: self.buttons[index].configure(hover=self.hover))
-            
+        
         if self.command:
             self.command(self.get())
             
+    def activate(self, index):
+        if str(index).lower()=="all":
+            if self.multiple:
+                for i in self.buttons:
+                    self.select(i)
+            return
+        selected = list(self.buttons.keys())[index]
+        self.select(selected)
+        
+    def curselection(self):
+        index = 0
+        if self.multiple:
+            indexes = []
+            for i in self.buttons.values():
+                if i in self.selections:
+                    indexes.append(index)
+                index +=1   
+            return tuple(indexes)
+        
+        else:   
+            for i in self.buttons.values():
+                if i==self.selected:
+                    return index
+                else:
+                    index +=1
+
     def bind(self, key, func):
         super().bind_all(key, lambda e: func(self.get()))
         
@@ -84,7 +110,15 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         if self.buttons[index] in self.selections:
             self.selections.remove(self.buttons[index])
             self.buttons[index].configure(fg_color="transparent")
-       
+
+    def deactivate(self, index):
+        if str(index).lower()=="all":
+            for i in self.buttons:
+                self.deselect(i)
+            return
+        selected = list(self.buttons.keys())[index]
+        self.deselect(selected)
+        
     def insert(self, index, option, **args):
         """ add new option in the listbox """
                 
@@ -112,7 +146,6 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             return
         self.buttons[index].destroy()
         del self.buttons[index]
-        self.selections.clear()
         
     def size(self):
         """ return total number of items in the listbox """
