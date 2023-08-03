@@ -134,16 +134,20 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
 
     def delete(self, index):
         """ delete a option from the listbox """
-        if str(index).lower()=="end":
-            index = f"END{self.end_num}"
-            self.end_num -=1
-
+            
         if str(index).lower()=="all":
             for i in self.buttons:
                 self.buttons[i].destroy()
             self.buttons = {}
             self.end_num = 0
             return
+
+        if str(index).lower()=="end":
+            index = f"END{self.end_num}"
+            self.end_num -=1
+        else:
+            index = list(self.buttons.keys())[index]
+            
         self.buttons[index].destroy()
         del self.buttons[index]
         
@@ -154,10 +158,11 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
     def get(self, index=None):
         """ get the selected value """
         if index:
-            if str(index).lower=="all":
-                return self.buttons[index].cget("text")
-            else:
+            if str(index).lower()=="all":
                 return list(item.cget("text") for item in self.buttons.values())
+            else:
+                index = list(self.buttons.keys())[int(index)]
+                return self.buttons[index].cget("text")
         else:
             if self.multiple:
                 return [x.cget("text") for x in self.selections] if len(self.selections)>0 else None
