@@ -53,15 +53,15 @@ root.mainloop()
 
 ## Methods
 - **.insert(index, option)**
-   add a option to the listbox
+   add nwq option to the listbox
 - **.get()**
-   get the selected options
+   get the selected option(s)
 - **.delete(index)**
-   delete a option from the listbox
+   delete any option from the listbox
 - **.size()**
    get the size of the listbox
 - **.activate(index)**
-  activate an option
+  activate any option
 - **.deactivae(index)**
   deactivate any option
 - **.curselection()**
