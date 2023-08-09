@@ -20,6 +20,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
                  border_width: int = 3,
                  font: tuple = "default",
                  multiple_selection: bool = False,
+                 listvariable = None,
                  hover: bool = True,
                  command = None,
                  justify = "left",
@@ -50,6 +51,17 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         self.end_num = 0 
         self.selections = []
         
+        if listvariable:
+            self.listvariable = listvariable
+            self.listvariable.trace_add('write', lambda a,b,c: self.update_listvar())
+            self.update_listvar()
+            
+    def update_listvar(self):
+        values = list(eval(self.listvariable.get()))
+        self.delete("all")
+        for i in values:
+            self.insert("END", option=i)
+            
     def select(self, index):
         """ select the option """
         for options in self.buttons.values():
