@@ -55,7 +55,9 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.listvariable = listvariable
             self.listvariable.trace_add('write', lambda a,b,c: self.update_listvar())
             self.update_listvar()
-            
+
+        super().bind("<Destroy>", lambda e: self.unbind_all("<Configure>"))
+                     
     def update_listvar(self):
         values = list(eval(self.listvariable.get()))
         self.delete("all")
