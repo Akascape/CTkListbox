@@ -57,7 +57,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.update_listvar()
 
         super().bind("<Destroy>", lambda e: self.unbind_all("<Configure>"))
-                     
+        
     def update_listvar(self):
         values = list(eval(self.listvariable.get()))
         self.delete("all")
@@ -140,15 +140,18 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             index = f"END{self.end_num}"
             self.end_num +=1
             
+        if index in self.buttons:
+            self.buttons[index].destroy()
+            
         self.buttons[index] = customtkinter.CTkButton(self, text=option, fg_color="transparent", anchor=self.justify,
                                                       text_color=self.text_color, font=self.font,
                                                       hover_color=self.hover_color, **args)
         self.buttons[index].configure(command=lambda num=index: self.select(num))
         self.buttons[index].pack(padx=0, pady=(0,5), fill="x", expand=True)
 
-    def delete(self, index):
-        """ delete a option from the listbox """
-            
+    def delete(self, index, last=None):
+        """ delete options from the listbox """
+
         if str(index).lower()=="all":
             for i in self.buttons:
                 self.buttons[i].destroy()
@@ -160,14 +163,32 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             index = f"END{self.end_num}"
             self.end_num -=1
         else:
-            index = list(self.buttons.keys())[index]
-            
-        self.buttons[index].destroy()
-        del self.buttons[index]
+            if int(index)==len(self.buttons):
+                index = len(self.buttons)-1
+            if int(index)>len(self.buttons):
+                return
+            if not last:
+                index = list(self.buttons.keys())[int(index)]
+
+        if last:
+            if str(last).lower()=="end":
+                last = len(self.buttons)-1
+            elif int(last)>=len(self.buttons):
+                last = len(self.buttons)-1
+                
+            deleted_list = []
+            for i in range(index, int(last)+1):
+                list(self.buttons.values())[i].destroy()
+                deleted_list.append(list(self.buttons.keys())[i])
+            for i in deleted_list:
+                del self.buttons[i]
+        else:
+            self.buttons[index].destroy()
+            del self.buttons[index]
         
     def size(self):
         """ return total number of items in the listbox """
-        return len(self.buttons.values())
+        return len(self.buttons.keys())
 
     def get(self, index=None):
         """ get the selected value """
