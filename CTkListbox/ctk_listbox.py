@@ -236,7 +236,6 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             current_key = list(self.buttons.keys())[index]
             previous_key = list(self.buttons.keys())[index - 1]
 
-
             # Store the text of the button to be moved
             current_text = self.buttons[current_key].cget("text")
 
@@ -244,15 +243,15 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.buttons[current_key].configure(text=self.buttons[previous_key].cget("text"))
             self.buttons[previous_key].configure(text=current_text)
 
-
             # Clear the selection from the current option
-            selected = list(self.buttons.keys())[index]
-            self.deselect(selected)
+            self.deselect(current_key)
             
             # Update the selection
-            self.selected = self.buttons[previous_key]
-            self.selected.configure(fg_color=self.select_color, hover=False)
-            self.after(100, lambda: self.selected.configure(hover=self.hover))
+            self.select(previous_key)
+
+            # Update the scrollbar position
+            self._parent_canvas.yview("scroll", -int(100 / 6), "units")
+
 
     def move_down(self, index):
         """ Move the option down in the listbox """
@@ -271,11 +270,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.deselect(current_key)
 
             # Update the selection
-            self.selected = self.buttons[next_key]
-            self.selected.configure(fg_color=self.select_color, hover=False)
-            self.after(100, lambda: self.selected.configure(hover=self.hover))
+            self.select(next_key)
 
-            # Update the display order
-            for i, button in enumerate(self.buttons.values()):
-                button.pack_forget()
-                button.pack(padx=0, pady=(0, 5), fill="x", expand=True)
+            # Update the scrollbar position
+            self._parent_canvas.yview("scroll", int(100 / 6), "units")
