@@ -250,7 +250,8 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.select(previous_key)
 
             # Update the scrollbar position
-            self._parent_canvas.yview("scroll", -int(100 / 6), "units")
+            if self._parent_canvas.yview() != (0.0, 1.0):
+                self._parent_canvas.yview("scroll", -int(100 / 6), "units")
 
 
     def move_down(self, index):
@@ -273,4 +274,5 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.select(next_key)
 
             # Update the scrollbar position
-            self._parent_canvas.yview("scroll", int(100 / 6), "units")
+            if self._parent_canvas.yview() != (0.0, 1.0):
+                self._parent_canvas.yview("scroll", int(100 / 6), "units")
