@@ -229,3 +229,53 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.command = kwargs.pop("command")
             
         super().configure(**kwargs)
+
+    def move_up(self, index):
+        """ Move the option up in the listbox """
+        if index > 0:
+            current_key = list(self.buttons.keys())[index]
+            previous_key = list(self.buttons.keys())[index - 1]
+
+
+            # Store the text of the button to be moved
+            current_text = self.buttons[current_key].cget("text")
+
+            # Update the text of the buttons
+            self.buttons[current_key].configure(text=self.buttons[previous_key].cget("text"))
+            self.buttons[previous_key].configure(text=current_text)
+
+
+            # Clear the selection from the current option
+            selected = list(self.buttons.keys())[index]
+            self.deselect(selected)
+            
+            # Update the selection
+            self.selected = self.buttons[previous_key]
+            self.selected.configure(fg_color=self.select_color, hover=False)
+            self.after(100, lambda: self.selected.configure(hover=self.hover))
+
+    def move_down(self, index):
+        """ Move the option down in the listbox """
+        if index < len(self.buttons) - 1:
+            current_key = list(self.buttons.keys())[index]
+            next_key = list(self.buttons.keys())[index + 1]
+
+            # Store the text of the button to be moved
+            current_text = self.buttons[current_key].cget("text")
+
+            # Update the text of the buttons
+            self.buttons[current_key].configure(text=self.buttons[next_key].cget("text"))
+            self.buttons[next_key].configure(text=current_text)
+
+            # Clear the selection from the current option
+            self.deselect(current_key)
+
+            # Update the selection
+            self.selected = self.buttons[next_key]
+            self.selected.configure(fg_color=self.select_color, hover=False)
+            self.after(100, lambda: self.selected.configure(hover=self.hover))
+
+            # Update the display order
+            for i, button in enumerate(self.buttons.values()):
+                button.pack_forget()
+                button.pack(padx=0, pady=(0, 5), fill="x", expand=True)
