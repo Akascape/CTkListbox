@@ -27,7 +27,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
                  **kwargs):
         
         super().__init__(master, width=width, height=height, fg_color=fg_color, border_width=border_width, **kwargs)
-        self._scrollbar.grid_configure(padx=(0,border_width))
+        self._scrollbar.grid_configure(padx=(0,border_width+4))
         self._scrollbar.configure(width=12)
         
         if bg_color:
