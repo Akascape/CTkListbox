@@ -69,5 +69,7 @@ root.mainloop()
   returns indexes of selected options
 - **.configure()**
    change some parameters for the listbox
+- **move_up(index)/move_down(index)**
+   Reorder options in the listbox
   
 ### Thanks for visiting! Hope it will help :)
