@@ -229,3 +229,50 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.command = kwargs.pop("command")
             
         super().configure(**kwargs)
+
+    def move_up(self, index):
+        """ Move the option up in the listbox """
+        if index > 0:
+            current_key = list(self.buttons.keys())[index]
+            previous_key = list(self.buttons.keys())[index - 1]
+
+            # Store the text of the button to be moved
+            current_text = self.buttons[current_key].cget("text")
+
+            # Update the text of the buttons
+            self.buttons[current_key].configure(text=self.buttons[previous_key].cget("text"))
+            self.buttons[previous_key].configure(text=current_text)
+
+            # Clear the selection from the current option
+            self.deselect(current_key)
+            
+            # Update the selection
+            self.select(previous_key)
+
+            # Update the scrollbar position
+            if self._parent_canvas.yview() != (0.0, 1.0):
+                self._parent_canvas.yview("scroll", -int(100 / 6), "units")
+
+
+    def move_down(self, index):
+        """ Move the option down in the listbox """
+        if index < len(self.buttons) - 1:
+            current_key = list(self.buttons.keys())[index]
+            next_key = list(self.buttons.keys())[index + 1]
+
+            # Store the text of the button to be moved
+            current_text = self.buttons[current_key].cget("text")
+
+            # Update the text of the buttons
+            self.buttons[current_key].configure(text=self.buttons[next_key].cget("text"))
+            self.buttons[next_key].configure(text=current_text)
+
+            # Clear the selection from the current option
+            self.deselect(current_key)
+
+            # Update the selection
+            self.select(next_key)
+
+            # Update the scrollbar position
+            if self._parent_canvas.yview() != (0.0, 1.0):
+                self._parent_canvas.yview("scroll", int(100 / 6), "units")
