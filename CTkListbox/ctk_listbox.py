@@ -17,6 +17,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
                  text_color: str = "default",
                  select_color: str = "default",
                  hover_color: str = "default",
+                 button_fg_color: str = "default",
                  border_width: int = 3,
                  font: tuple = "default",
                  multiple_selection: bool = False,
@@ -37,6 +38,8 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         self.text_color = customtkinter.ThemeManager.theme["CTkButton"]["text_color"] if text_color=="default" else text_color
         self.hover_color = customtkinter.ThemeManager.theme["CTkButton"]["hover_color"] if hover_color=="default" else hover_color
         self.font = (customtkinter.ThemeManager.theme["CTkFont"]["family"],13) if font=="default" else font
+        self.button_fg_color = "transparent" if button_fg_color=="default" else button_fg_color
+        
         if justify=="left":
             self.justify = "w"
         elif justify=="right":
@@ -50,12 +53,13 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         self.hover = hover
         self.end_num = 0 
         self.selections = []
+        self.selected_index = 0
         
         if listvariable:
             self.listvariable = listvariable
             self.listvariable.trace_add('write', lambda a,b,c: self.update_listvar())
             self.update_listvar()
-
+        
         super().bind("<Destroy>", lambda e: self.unbind_all("<Configure>"))
         
     def update_listvar(self):
@@ -67,32 +71,43 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
     def select(self, index):
         """ select the option """
         for options in self.buttons.values():
-            options.configure(fg_color="transparent")
+            options.configure(fg_color=self.button_fg_color)
+
+        if isinstance(index, int):
+            selected_button = list(self.buttons.values())[index]
+        else:
+            selected_button = self.buttons[index]
         
         if self.multiple:
-            if self.buttons[index] in self.selections:
-                self.selections.remove(self.buttons[index])
-                self.buttons[index].configure(fg_color="transparent", hover=False)
-                self.after(100, lambda: self.buttons[index].configure(hover=self.hover))
+            if selected_button in self.selections:
+                self.selections.remove(selected_button)
+                selected_button.configure(fg_color=self.button_fg_color, hover=False)
+                self.after(100, lambda: selected_button.configure(hover=self.hover))
             else:
-                self.selections.append(self.buttons[index])
+                self.selections.append(selected_button)
             for i in self.selections:
                 i.configure(fg_color=self.select_color, hover=False)
                 self.after(100, lambda button=i: button.configure(hover=self.hover))
         else:
-            self.selected = self.buttons[index]
-            self.buttons[index].configure(fg_color=self.select_color, hover=False)
-            self.after(100, lambda: self.buttons[index].configure(hover=self.hover))
+            self.selected = selected_button
+            selected_button.configure(fg_color=self.select_color, hover=False)
+            self.after(100, lambda: selected_button.configure(hover=self.hover))
         
         if self.command:
             self.command(self.get())
-            
+         
+        self.event_generate("<<ListboxSelect>>")
+        
     def activate(self, index):
         if str(index).lower()=="all":
             if self.multiple:
                 for i in self.buttons:
                     self.select(i)
             return
+        
+        if str(index).lower()=="end":
+            index = -1
+
         selected = list(self.buttons.keys())[index]
         self.select(selected)
         
@@ -118,24 +133,28 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         
     def deselect(self, index):
         if not self.multiple:
-            self.selected.configure(fg_color="transparent")
+            self.selected.configure(fg_color=self.button_fg_color)
             self.selected = None
             return
         if self.buttons[index] in self.selections:
             self.selections.remove(self.buttons[index])
-            self.buttons[index].configure(fg_color="transparent")
+            self.buttons[index].configure(fg_color=self.button_fg_color)
 
     def deactivate(self, index):
         if str(index).lower()=="all":
             for i in self.buttons:
                 self.deselect(i)
             return
+        
+        if str(index).lower()=="end":
+            index = -1
+            
         selected = list(self.buttons.keys())[index]
         self.deselect(selected)
         
     def insert(self, index, option, **args):
         """ add new option in the listbox """
-                
+        
         if str(index).lower()=="end":
             index = f"END{self.end_num}"
             self.end_num +=1
@@ -143,15 +162,35 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         if index in self.buttons:
             self.buttons[index].destroy()
             
-        self.buttons[index] = customtkinter.CTkButton(self, text=option, fg_color="transparent", anchor=self.justify,
+        self.buttons[index] = customtkinter.CTkButton(self, text=option, fg_color=self.button_fg_color,
+                                                      anchor=self.justify,
                                                       text_color=self.text_color, font=self.font,
                                                       hover_color=self.hover_color, **args)
         self.buttons[index].configure(command=lambda num=index: self.select(num))
         self.buttons[index].pack(padx=0, pady=(0,5), fill="x", expand=True)
+        self.update()
+        
+        if self.multiple:
+            self.buttons[index].bind('<Shift-1>', lambda e: self.select_multiple(self.buttons[index]))
+        
+    def select_multiple(self, button):
+        selections = list(self.buttons.values())
+        if len(self.selections)>0:
+            last = selections.index(self.selections[-1])
+            to = selections.index(button)
+            
+            if last<to:
+                for i in range(last+1, to+1):
+                    if list(self.buttons.values())[i] not in self.selections:
+                        self.select(i)
+            else:
+                for i in range(to, last):
+                    if list(self.buttons.values())[i] not in self.selections:
+                        self.select(i)
 
+        
     def delete(self, index, last=None):
         """ delete options from the listbox """
-
         if str(index).lower()=="all":
             for i in self.buttons:
                 self.buttons[i].destroy()
@@ -177,14 +216,16 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
                 last = len(self.buttons)-1
                 
             deleted_list = []
-            for i in range(index, int(last)+1):
+            for i in range(int(index), int(last)+1):
                 list(self.buttons.values())[i].destroy()
                 deleted_list.append(list(self.buttons.keys())[i])
+                self.update()
             for i in deleted_list:
                 del self.buttons[i]
         else:
             self.buttons[index].destroy()
             del self.buttons[index]
+            
         
     def size(self):
         """ return total number of items in the listbox """
@@ -192,7 +233,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
 
     def get(self, index=None):
         """ get the selected value """
-        if index:
+        if index is not None:
             if str(index).lower()=="all":
                 return list(item.cget("text") for item in self.buttons.values())
             else:
@@ -211,6 +252,10 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.hover_color = kwargs.pop("hover_color")
             for i in self.buttons.values():
                 i.configure(hover_color=self.hover_color)
+        if "button_fg_color" in kwargs:
+            self.button_fg_color = kwargs.pop("button_fg_color")
+            for i in self.buttons.values():
+                i.configure(fg_color=self.button_fg_color)
         if "highlight_color" in kwargs:
             self.select_color = kwargs.pop("highlight_color")
             if self.selected: self.selected.configure(fg_color=self.select_color)
@@ -229,7 +274,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.command = kwargs.pop("command")
             
         super().configure(**kwargs)
-
+        
     def move_up(self, index):
         """ Move the option up in the listbox """
         if index > 0:
