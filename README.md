@@ -59,7 +59,7 @@ root.mainloop()
 - **.get()**
    get the selected option(s)
 - **.delete(index)**
-   delete any option from the listbox. `.delete(all)` deletes all options
+   delete any option from the listbox. `.delete("all")` deletes all options
 - **.size()**
    get the size of the listbox
 - **.activate(index)**
