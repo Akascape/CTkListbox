@@ -59,8 +59,7 @@ root.mainloop()
 - **.get()**
    get the selected option(s)
 - **.delete(index)**
-   delete any option from the listbox
-   `.delete(all)` deletes all options
+   delete any option from the listbox. `.delete(all)` deletes all options
 - **.size()**
    get the size of the listbox
 - **.activate(index)**
@@ -70,8 +69,7 @@ root.mainloop()
 - **.curselection()**
   returns indexes of selected options
 - **.configure()**
-   change some parameters for the listbox
-   available arguments are: hover_color, button_fg_color, highlight_color, text_color, font, command
+   change some parameters for the listbox. Available arguments are: hover_color, button_fg_color, highlight_color, text_color, font, command
 - **.move_up(index)/.move_down(index)**
    Reorder options in the listbox
   
