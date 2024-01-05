@@ -340,7 +340,6 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
 
     def move_down(self, index):
         """Move the option down in the listbox"""
-        print(len(self.buttons) - 1)
         if index < len(self.buttons) - 1:
             next_index = index + 1
 

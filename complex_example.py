@@ -45,13 +45,11 @@ def delete4To5():
 
 def move_up_current():
     index = listbox.curselection()
-    print(index)
     listbox.move_up(index)
 
 
 def move_down_current():
     index = listbox.curselection()
-    print(index)
     listbox.move_down(index)
 
 
