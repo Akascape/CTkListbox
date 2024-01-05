@@ -72,12 +72,11 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.justify = "e"
         else:
             self.justify = "c"
-        self.buttons = {}
+        self.buttons = []
         self.command = command
         self.multiple = multiple_selection
         self.selected = None
         self.hover = hover
-        self.end_num = 0
         self.selections = []
         self.selected_index = 0
 
@@ -92,17 +91,14 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         values = list(eval(self.listvariable.get()))
         self.delete("all")
         for i in values:
-            self.insert("END", option=i)
+            self.insert(option=i)
 
     def select(self, index):
         """select the option"""
-        for options in self.buttons.values():
-            options.configure(fg_color=self.button_fg_color)
+        for option in self.buttons:
+            option.configure(fg_color=self.button_fg_color)
 
-        if isinstance(index, int):
-            selected_button = list(self.buttons.values())[index]
-        else:
-            selected_button = self.buttons[index]
+        selected_button = self.buttons[index]
 
         if self.multiple:
             if selected_button in self.selections:
@@ -131,24 +127,21 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
                     self.select(i)
             return
 
-        if str(index).lower() == "end":
-            index = -1
-
-        selected = list(self.buttons.keys())[index]
+        selected = self.buttons[index]
         self.select(selected)
 
     def curselection(self):
         index = 0
         if self.multiple:
             indexes = []
-            for i in self.buttons.values():
+            for i in self.buttons:
                 if i in self.selections:
                     indexes.append(index)
                 index += 1
             return tuple(indexes)
 
         else:
-            for i in self.buttons.values():
+            for i in self.buttons:
                 if i == self.selected:
                     return index
                 else:
@@ -172,35 +165,35 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
                 self.deselect(i)
             return
 
-        if str(index).lower() == "end":
-            index = -1
-
-        selected = list(self.buttons.keys())[index]
+        selected = self.buttons[index]
         self.deselect(selected)
 
-    def insert(self, index, option, **args):
+    def insert(self, option, index: int = -1, order: bool = False, **args):
         """add new option in the listbox"""
 
-        if str(index).lower() == "end":
-            index = f"END{self.end_num}"
-            self.end_num += 1
+        if 0 <= index < len(self.buttons):
+            self.buttons[index].configure(text=option, **args)
+        else:
+            button = customtkinter.CTkButton(
+                self,
+                text=option,
+                fg_color=self.button_fg_color,
+                anchor=self.justify,
+                text_color=self.text_color,
+                font=self.font,
+                hover_color=self.hover_color,
+                **args,
+            )
 
-        if index in self.buttons:
-            self.buttons[index].destroy()
+            if index < 0:
+                self.buttons.append(button)
+                index = self.buttons.index(button)
+            else:
+                self.buttons.insert(index, button)
 
-        self.buttons[index] = customtkinter.CTkButton(
-            self,
-            text=option,
-            fg_color=self.button_fg_color,
-            anchor=self.justify,
-            text_color=self.text_color,
-            font=self.font,
-            hover_color=self.hover_color,
-            **args,
-        )
-        self.buttons[index].configure(command=lambda num=index: self.select(num))
-        self.buttons[index].pack(padx=0, pady=(0, 5), fill="x", expand=True)
-        self.update()
+            self.buttons[index].configure(command=lambda num=index: self.select(num))
+            self.buttons[index].pack(padx=0, pady=(0, 5), fill="x", expand=True)
+            self.update()
 
         if self.multiple:
             self.buttons[index].bind(
@@ -210,68 +203,75 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         return self.buttons[index]
 
     def select_multiple(self, button):
-        selections = list(self.buttons.values())
+        selections = self.buttons
         if len(self.selections) > 0:
             last = selections.index(self.selections[-1])
             to = selections.index(button)
 
             if last < to:
                 for i in range(last + 1, to + 1):
-                    if list(self.buttons.values())[i] not in self.selections:
+                    if self.buttons[i] not in self.selections:
                         self.select(i)
             else:
                 for i in range(to, last):
-                    if list(self.buttons.values())[i] not in self.selections:
+                    if self.buttons[i] not in self.selections:
                         self.select(i)
 
     def delete(self, index, last=None):
         """delete options from the listbox"""
+
+        def recalculate_index(i):
+            for new_index in range(i, len(self.buttons)):
+                self.buttons[new_index].configure(
+                    command=lambda num=new_index: self.select(num)
+                )
+
         if str(index).lower() == "all":
             for i in self.buttons:
                 self.buttons[i].destroy()
-            self.buttons = {}
-            self.end_num = 0
+            self.buttons = []
             return
 
-        if str(index).lower() == "end":
-            index = f"END{self.end_num}"
-            self.end_num -= 1
-        else:
-            if int(index) == len(self.buttons):
-                index = len(self.buttons) - 1
-            if int(index) > len(self.buttons):
-                return
-            if not last:
-                index = list(self.buttons.keys())[int(index)]
+        if int(index) < 0 or int(index) >= len(self.buttons):
+            return
 
         if last:
             if str(last).lower() == "end":
                 last = len(self.buttons) - 1
-            elif int(last) >= len(self.buttons):
-                last = len(self.buttons) - 1
+            elif (
+                int(last) <= int(index)
+                or int(last) < 0
+                or int(last) >= len(self.buttons)
+            ):
+                return
 
             deleted_list = []
             for i in range(int(index), int(last) + 1):
-                list(self.buttons.values())[i].destroy()
-                deleted_list.append(list(self.buttons.keys())[i])
+                self.buttons[i].destroy()
+                deleted_list.append(i)
                 self.update()
+
+            deleted_list.sort(reverse=True)
             for i in deleted_list:
                 del self.buttons[i]
+
+            recalculate_index(index)
         else:
             self.buttons[index].destroy()
             del self.buttons[index]
 
+            recalculate_index(index)
+
     def size(self):
         """return total number of items in the listbox"""
-        return len(self.buttons.keys())
+        return len(self.buttons)
 
     def get(self, index=None):
         """get the selected value"""
         if index is not None:
             if str(index).lower() == "all":
-                return list(item.cget("text") for item in self.buttons.values())
+                return list(item.cget("text") for item in self.buttons)
             else:
-                index = list(self.buttons.keys())[int(index)]
                 return self.buttons[index].cget("text")
         else:
             if self.multiple:
@@ -317,23 +317,22 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
     def move_up(self, index):
         """Move the option up in the listbox"""
         if index > 0:
-            current_key = list(self.buttons.keys())[index]
-            previous_key = list(self.buttons.keys())[index - 1]
+            previous_index = index - 1
 
             # Store the text of the button to be moved
-            current_text = self.buttons[current_key].cget("text")
+            current_text = self.buttons[index].cget("text")
 
             # Update the text of the buttons
-            self.buttons[current_key].configure(
-                text=self.buttons[previous_key].cget("text")
+            self.buttons[index].configure(
+                text=self.buttons[previous_index].cget("text")
             )
-            self.buttons[previous_key].configure(text=current_text)
+            self.buttons[previous_index].configure(text=current_text)
 
             # Clear the selection from the current option
-            self.deselect(current_key)
+            self.deselect(index)
 
             # Update the selection
-            self.select(previous_key)
+            self.select(previous_index)
 
             # Update the scrollbar position
             if self._parent_canvas.yview() != (0.0, 1.0):
@@ -341,24 +340,22 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
 
     def move_down(self, index):
         """Move the option down in the listbox"""
+        print(len(self.buttons) - 1)
         if index < len(self.buttons) - 1:
-            current_key = list(self.buttons.keys())[index]
-            next_key = list(self.buttons.keys())[index + 1]
+            next_index = index + 1
 
             # Store the text of the button to be moved
-            current_text = self.buttons[current_key].cget("text")
+            current_text = self.buttons[index].cget("text")
 
             # Update the text of the buttons
-            self.buttons[current_key].configure(
-                text=self.buttons[next_key].cget("text")
-            )
-            self.buttons[next_key].configure(text=current_text)
+            self.buttons[index].configure(text=self.buttons[next_index].cget("text"))
+            self.buttons[next_index].configure(text=current_text)
 
             # Clear the selection from the current option
-            self.deselect(current_key)
+            self.deselect(index)
 
             # Update the selection
-            self.select(next_key)
+            self.select(next_index)
 
             # Update the scrollbar position
             if self._parent_canvas.yview() != (0.0, 1.0):
