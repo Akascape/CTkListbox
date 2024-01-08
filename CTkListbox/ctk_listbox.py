@@ -12,7 +12,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         master: any,
         height: int = 100,
         width: int = 200,
-        hightlight_color: str = "default",
+        highlight_color: str = "default",
         fg_color: str = "transparent",
         bg_color: str = None,
         text_color: str = "default",
