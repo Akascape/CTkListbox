@@ -16,7 +16,6 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         fg_color: str = "transparent",
         bg_color: str = None,
         text_color: str = "default",
-        select_color: str = "default",
         hover_color: str = "default",
         button_fg_color: str = "default",
         border_width: int = 3,
@@ -44,8 +43,8 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
 
         self.select_color = (
             customtkinter.ThemeManager.theme["CTkButton"]["fg_color"]
-            if select_color == "default"
-            else select_color
+            if highlight_color == "default"
+            else highlight_color
         )
         self.text_color = (
             customtkinter.ThemeManager.theme["CTkButton"]["text_color"]
