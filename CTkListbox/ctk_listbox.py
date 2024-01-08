@@ -304,7 +304,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         if "text_color" in kwargs:
             self.text_color = kwargs.pop("text_color")
             for i in self.buttons.values():
-                i.configure(text=self.text_color)
+                i.configure(text_color=self.text_color)
         if "font" in kwargs:
             self.font = kwargs.pop("font")
             for i in self.buttons.values():
