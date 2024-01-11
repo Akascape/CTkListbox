@@ -97,7 +97,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         """select the option"""
         for options in self.buttons.values():
             options.configure(fg_color=self.button_fg_color)
-        
+
         if isinstance(index, int):
             if index in self.buttons:
                 selected_button = self.buttons[index]
@@ -105,7 +105,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
                 selected_button = list(self.buttons.values())[index]
         else:
             selected_button = self.buttons[index]
-  
+
         if self.multiple:
             if selected_button in self.selections:
                 self.selections.remove(selected_button)
@@ -236,8 +236,8 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             return
 
         if str(index).lower() == "end":
-            index = f"END{self.end_num}"
             self.end_num -= 1
+            index = f"END{self.end_num}"
         else:
             if int(index) >= len(self.buttons):
                 return
