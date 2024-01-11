@@ -314,6 +314,9 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
                 i.configure(font=self.font)
         if "command" in kwargs:
             self.command = kwargs.pop("command")
+        if "multiple_selection" in kwargs:
+            self.multiple = kwargs.pop("multiple_selection")
+            print(self.multiple)
 
         super().configure(**kwargs)
 
