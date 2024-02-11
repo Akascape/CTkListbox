@@ -64,7 +64,7 @@ root.mainloop()
    get the size of the listbox
 - **.activate(index)**
   activate any option
-- **.deactivae(index)**
+- **.deactivate(index)**
   deactivate any option
 - **.curselection()**
   returns indexes of selected options
