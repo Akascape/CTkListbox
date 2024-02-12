@@ -5,6 +5,6 @@ License: MIT
 Homepage: https://github.com/Akascape/CTkListbox
 """
 
-__version__ = '1.2'
+__version__ = '1.3'
 
 from .ctk_listbox import CTkListbox
