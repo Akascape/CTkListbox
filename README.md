@@ -45,7 +45,7 @@ root.mainloop()
 | border_width | width of the border frame |
 | text_color | set the color of the option text |
 | hover_color | set hover color of the options |
-| button_fg_color | set color of unselected buttons |
+| button_color | set color of unselected buttons |
 | highlight_color | set the selected color of the option |
 | font | set font of the option text |
 | command | calls a command when a option is selected |
@@ -64,7 +64,7 @@ root.mainloop()
    get the size of the listbox
 - **.activate(index)**
   activate any option
-- **.deactivae(index)**
+- **.deactivate(index)**
   deactivate any option
 - **.curselection()**
   returns indexes of selected options
