@@ -45,7 +45,7 @@ root.mainloop()
 | border_width | width of the border frame |
 | text_color | set the color of the option text |
 | hover_color | set hover color of the options |
-| button_fg_color | set color of unselected buttons |
+| button_color | set color of unselected buttons |
 | highlight_color | set the selected color of the option |
 | font | set font of the option text |
 | command | calls a command when a option is selected |
@@ -55,7 +55,7 @@ root.mainloop()
 
 ## Methods
 - **.insert(index, option)**
-   add nwq option to the listbox
+   add new option to the listbox
 - **.get()**
    get the selected option(s)
 - **.delete(index)**
@@ -69,7 +69,7 @@ root.mainloop()
 - **.curselection()**
   returns indexes of selected options
 - **.configure()**
-   change some parameters for the listbox. Available arguments are: hover_color, button_fg_color, highlight_color, text_color, font, command
+   change some parameters for the listbox.
 - **.move_up(index)/.move_down(index)**
    Reorder options in the listbox
   
