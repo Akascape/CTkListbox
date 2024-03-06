@@ -46,7 +46,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             else highlight_color
         )
         self.text_color = (
-            customtkinter.ThemeManager.theme["CTkButton"]["text_color"]
+            customtkinter.ThemeManager.theme["CTkLabel"]["text_color"]
             if text_color == "default"
             else text_color
         )
