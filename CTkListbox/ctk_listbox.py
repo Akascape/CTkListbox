@@ -189,7 +189,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         selected = list(self.buttons.keys())[index]
         self.deselect(selected)
 
-    def insert(self, index, option, **args):
+    def insert(self, index, option, update=True, **args):
         """add new option in the listbox"""
 
         if str(index).lower() == "end":
@@ -211,7 +211,9 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         )
         self.buttons[index].configure(command=lambda num=index: self.select(num))
         self.buttons[index].pack(padx=0, pady=(0, 5), fill="x", expand=True)
-        self.update()
+        
+        if update:
+            self.update()
 
         if self.multiple:
             self.buttons[index].bind(
