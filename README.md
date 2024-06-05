@@ -58,6 +58,8 @@ root.mainloop()
    add new option to the listbox
 - **.get()**
    get the selected option(s)
+- **.select(index)**
+   select any option from the listbox. `.select("all")` selects all options if multiple_selection is true
 - **.delete(index)**
    delete any option from the listbox. `.delete("all")` deletes all options
 - **.size()**
