@@ -97,7 +97,15 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.insert("END", option=i)
 
     def select(self, index):
-        """select the option"""
+        """Select the option"""
+        if str(index).lower() == "all":
+            if self.multiple:
+                for button in self.buttons.values():
+                    button.configure(fg_color=self.select_color, hover=False)
+                    if button not in self.selections:
+                        self.selections.append(button)
+            return
+            
         for options in self.buttons.values():
             options.configure(fg_color=self.button_fg_color)
         
