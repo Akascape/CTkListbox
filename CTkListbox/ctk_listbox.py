@@ -184,7 +184,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             if self.multiple:
                 for i in self.buttons:
                     self.deselect(i)
-            else:
+            elif len(self.buttons):
                 self.deselect(0)
             return
         
