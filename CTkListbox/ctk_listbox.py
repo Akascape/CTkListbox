@@ -174,7 +174,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             if self.selected:
                 self.selected.configure(fg_color=self.button_fg_color)
                 self.selected = None
-                return
+            return
         if self.buttons[index] in self.selections:
             self.selections.remove(self.buttons[index])
             self.buttons[index].configure(fg_color=self.button_fg_color)
@@ -260,7 +260,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.deactivate("all")
             for i in self.buttons:
                 self.buttons[i].destroy()
-                self.update()
+            self.update()
             self.buttons = {}
             self.end_num = 0
             return
