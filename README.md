@@ -44,10 +44,13 @@ root.mainloop()
 | border_color | border color of the listbox frame |
 | border_width | width of the border frame |
 | text_color | set the color of the option text |
+| hover | Enable/Disable hover effect (bool) |
 | hover_color | set hover color of the options |
 | button_color | set color of unselected buttons |
 | highlight_color | set the selected color of the option |
-| font | set font of the option text |
+| font | set font of the option text, must be a tuple or CTkFont |
+| wraplength | change the number of letter per option line |
+| justify | change the text anchor; left, right or center |
 | command | calls a command when a option is selected |
 | multiple_selection | select multiple options in the listbox, `default=False`|
 | listvariable | use a tkinter variable to change the listbox content |
@@ -70,6 +73,8 @@ root.mainloop()
   returns indexes of selected options
 - **.configure()**
    change some parameters for the listbox.
+- **.see(index)**
+  move the listbox scrollbar to the index place
 - **.move_up(index)/.move_down(index)**
    Reorder options in the listbox
   
