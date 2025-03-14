@@ -4,6 +4,7 @@ Author: Akash Bora
 """
 
 import customtkinter
+import ast
 
 class CTkListbox(customtkinter.CTkScrollableFrame):
     def __init__(
@@ -23,9 +24,14 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         listvariable=None,
         hover: bool = True,
         command=None,
+        wraplength=0,
         justify="left",
         **kwargs,
         ):
+
+        self.buttons = {}
+        self.bindings = {}
+
         super().__init__(
             master,
             width=width,
@@ -62,8 +68,11 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             if isinstance(font, customtkinter.CTkFont):
                 self.font = font
             else:
-                self.font = customtkinter.CTkFont(font)
-                
+                if isinstance(font, tuple):
+                    self.font = customtkinter.CTkFont(*font)
+                else:
+                    self.font = customtkinter.CTkFont(customtkinter.ThemeManager.theme["CTkFont"]["family"],13)
+                    
         self.button_fg_color = (
             "transparent" if button_color == "default" else button_color
         )
@@ -74,7 +83,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.justify = "e"
         else:
             self.justify = "c"
-        self.buttons = {}
+
         self.command = command
         self.multiple = multiple_selection
         self.selected = None
@@ -82,6 +91,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         self.end_num = 0
         self.selections = []
         self.selected_index = 0
+        self.wraplength = wraplength
         self._scrollbar.configure(height=height)
         self.columnconfigure(0, weight=1)
         
@@ -91,13 +101,21 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.update_listvar()
 
     def update_listvar(self):
-        values = list(eval(self.listvariable.get()))
+        values = list(ast.literal_eval(self.listvariable.get()))
         self.delete("all")
         for i in values:
             self.insert("END", option=i)
 
     def select(self, index):
         """select the option"""
+        if str(index).lower() == "all":
+            if self.multiple:
+                for button in self.buttons.values():
+                    button.configure(fg_color=self.select_color, hover=False)
+                    if button not in self.selections:
+                        self.selections.append(button)
+            return
+        
         for options in self.buttons.values():
             options.configure(fg_color=self.button_fg_color)
         
@@ -164,10 +182,22 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         self._parent_frame.bind(key, lambda e: func(e), add=add)
         self._parent_canvas.bind(key, lambda e: func(e), add=add)
         
+        for button in self.buttons.values():
+            button.bind(key, lambda e: func(e), add=add)
+        
+        if key not in self.bindings:
+            self.bindings[key] = []
+        self.bindings[key].append((func, add))
+        
     def unbind(self, key):
         super().unbind(key)
         self._parent_frame.unbind(key)
         self._parent_canvas.unbind(key)
+        for button in self.buttons.values():
+            button.unbind(key)
+        
+        if key in self.bindings:
+            del self.bindings[key]
         
     def deselect(self, index):
         if not self.multiple:
@@ -175,7 +205,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
                 self.selected.configure(fg_color=self.button_fg_color)
                 self.selected = None
                 return
-        if self.buttons[index] in self.selections:
+        if index in self.buttons and self.buttons[index] in self.selections:
             self.selections.remove(self.buttons[index])
             self.buttons[index].configure(fg_color=self.button_fg_color)
 
@@ -184,7 +214,7 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             if self.multiple:
                 for i in self.buttons:
                     self.deselect(i)
-            else:
+            elif len(self.buttons):
                 self.deselect(0)
             return
         
@@ -215,7 +245,10 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             **args,
         )
         self.buttons[index].configure(command=lambda num=index: self.select(num))
-        
+        self.buttons[index]._text_label.config(anchor="w")
+        if self.wraplength:
+            self.buttons[index]._text_label.config(wraplength=self.wraplength)
+
         if type(index) is int:
             self.buttons[index].grid(padx=0, pady=(0, 5), sticky="nsew", column=0, row=index)
         else:
@@ -228,6 +261,11 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
             self.buttons[index].bind(
                 "<Shift-1>", lambda e: self.select_multiple(self.buttons[index])
             )
+
+        # Apply stored bindings to the new button
+        for key, funcs in self.bindings.items():
+            for func, add in funcs:
+                self.buttons[index].bind(key, lambda e, f=func: f(e), add=add)
 
         return self.buttons[index]
         
@@ -301,6 +339,27 @@ class CTkListbox(customtkinter.CTkScrollableFrame):
         """return total number of items in the listbox"""
         return len(self.buttons.keys())
 
+    def see(self, index):
+        """Move the frame to the specific button position, placing it at the top."""
+        if index in self.buttons:
+            button = self.buttons[index]
+        elif isinstance(index, int) and 0 <= index < len(self.buttons):
+            button = list(self.buttons.values())[index]
+        else:
+            if isinstance(index, int) and index >= len(self.buttons):
+                self._scrollbar._command("moveto", 1.0)
+                return
+            return  # Invalid index
+
+        button_y = button.winfo_y()
+        scroll_region = self._parent_canvas.bbox("all")
+        if scroll_region:
+            scroll_height = scroll_region[3]
+        else:
+            return
+
+        self._parent_canvas.yview_moveto(button_y / scroll_height)
+            
     def get(self, index=None):
         """get the selected value"""
         if index is not None:
